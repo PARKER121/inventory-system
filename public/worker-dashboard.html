@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Worker Dashboard</title>
+  <style>
+    :root {
+      --bg-1: #f3f6fb;
+      --bg-2: #e8eef9;
+      --bg-3: #fcfdff;
+      --card: rgba(255, 255, 255, 0.78);
+      --card-strong: rgba(255, 255, 255, 0.92);
+      --line: rgba(15, 23, 42, 0.07);
+      --text: #0f172a;
+      --muted: #5f6c7b;
+      --accent: #12b981;
+      --accent-deep: #0b8c62;
+      --accent-soft: rgba(18, 185, 129, 0.12);
+      --danger: #d92d20;
+      --success: #067647;
+      --shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.07);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "SF Pro Display", "SF Pro Text", "Helvetica Neue", -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(16, 185, 129, 0.20), transparent 24%),
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.12), transparent 24%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-3) 42%, var(--bg-2) 100%);
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 22px auto 40px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .glass {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
+    }
+
+    .hero {
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 22px;
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.82), rgba(247, 250, 255, 0.72)),
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.14), transparent 30%);
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+      font-weight: 700;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-size: clamp(2.6rem, 5vw, 4.9rem);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+      font-weight: 750;
+      max-width: 11ch;
+    }
+
+    .hero-copy p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.75;
+      max-width: 46ch;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hero-panel,
+    .card {
+      padding: 24px;
+    }
+
+    .hero-panel {
+      background: linear-gradient(180deg, var(--card-strong), rgba(245, 248, 252, 0.86));
+      border: 1px solid rgba(17, 24, 39, 0.05);
+      border-radius: var(--radius-lg);
+      display: grid;
+      gap: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    button,
+    .button-link {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+    }
+
+    button:hover,
+    .button-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.10);
+    }
+
+    .primary-btn {
+      background: linear-gradient(180deg, #22c55e, var(--accent));
+      color: white;
+      box-shadow: 0 16px 28px rgba(16, 185, 129, 0.24);
+    }
+    .secondary-btn {
+      background: rgba(255,255,255,0.88);
+      color: var(--text);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+    .ghost-btn {
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+    .danger-btn { background: linear-gradient(180deg, #ef4444, var(--danger)); color: white; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .metric-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 156px;
+    }
+
+    .metric-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -30% auto;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.16), transparent 70%);
+      pointer-events: none;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .metric-value {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      font-weight: 750;
+      margin-bottom: 12px;
+    }
+
+    .metric-note,
+    .toolbar-note,
+    .section-head p,
+    .hero-panel p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 20px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 20px;
+    }
+
+    .section-head,
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .section-head { margin-bottom: 16px; }
+    .toolbar { margin-bottom: 16px; }
+
+    .section-head h2,
+    .toolbar h2 {
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+    }
+
+    .meta-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .meta-row {
+      display: grid;
+      gap: 6px;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .meta-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .meta-label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+    }
+
+    .meta-value {
+      font-size: 1.02rem;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      font: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+      transform: translateY(-1px);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 140px;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .image-hint {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .image-preview {
+      width: 140px;
+      height: 140px;
+      border-radius: 18px;
+      border: 1px dashed rgba(15, 23, 42, 0.12);
+      background: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .image-preview.has-image img {
+      display: block;
+    }
+
+    .image-preview.has-image .placeholder {
+      display: none;
+    }
+
+    .image-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #filters-form {
+      padding: 18px;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(248,250,253,0.9));
+      margin-bottom: 10px;
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .status.error { color: var(--danger); }
+    .status.success { color: var(--success); }
+
+    .products-shell {
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.82);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      font-weight: 700;
+      background: rgba(248,250,252,0.92);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr:hover {
+      background: rgba(16, 185, 129, 0.035);
+    }
+
+    .product-name {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .product-id {
+      color: var(--muted);
+      font-size: 0.82rem;
+      word-break: break-word;
+    }
+
+    .product-cell {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .product-thumb {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(248, 250, 252, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .product-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-thumb .placeholder {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 0 6px;
+    }
+
+    .price-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-deep);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .product-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .product-actions button {
+      padding: 9px 14px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      border-radius: 20px;
+      background: #0f172a;
+      color: #e2e8f0;
+      overflow: auto;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.36);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(640px, 100%);
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 30px;
+      box-shadow: 0 30px 90px rgba(15, 23, 42, 0.20);
+      padding: 26px;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .close-btn {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.06);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .fade-in {
+      animation: fadeInUp 420ms ease both;
+    }
+
+    .delay-1 { animation-delay: 40ms; }
+    .delay-2 { animation-delay: 90ms; }
+    .delay-3 { animation-delay: 140ms; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .filters-grid,
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+
+      .image-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .shell {
+        width: min(100%, calc(100% - 18px));
+        margin: 10px auto 24px;
+      }
+
+      .hero,
+      .card,
+      .modal {
+        padding: 18px;
+        border-radius: 22px;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      th,
+      td {
+        padding: 12px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <script src="assets/js/shared.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero glass fade-in">
+      <div class="hero-copy">
+        <div>
+          <div class="eyebrow">Worker Console</div>
+          <h1>Keep the shelves ready.</h1>
+          <p>
+            Update products, track pricing, and keep inventory accurate for shoppers.
+          </p>
+        </div>
+      </div>
+
+      <aside class="hero-panel">
+        <div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Current Worker</h3>
+          <p>Signed-in worker profile.</p>
+        </div>
+        <div class="meta-list">
+          <div class="meta-row">
+            <div class="meta-label">Signed In As</div>
+            <div class="meta-value" id="hero-username">Loading...</div>
+          </div>
+        </div>
+        <div class="actions">
+          <a id="back-link" class="button-link secondary-btn" href="/worker-login.html">Back to Login</a>
+          <button id="refresh-btn" class="secondary-btn" type="button">Refresh Data</button>
+          <button id="logout-btn" class="primary-btn" type="button">Log Out</button>
+        </div>
+        <div id="status" class="status"></div>
+      </aside>
+    </section>
+
+    <section class="summary-grid">
+      <article class="card glass metric-card fade-in delay-1">
+        <div class="metric-label">Total Products</div>
+        <div id="stat-total" class="metric-value">Loading...</div>
+        <div class="metric-note">Current products in inventory.</div>
+      </article>
+      <article class="card glass metric-card fade-in delay-1">
+        <div class="metric-label">Average Price</div>
+        <div id="stat-average" class="metric-value">Loading...</div>
+        <div class="metric-note">Average price across saved products.</div>
+      </article>
+      <article class="card glass metric-card fade-in delay-2">
+        <div class="metric-label">Most Expensive</div>
+        <div id="stat-top" class="metric-value" style="font-size: 1.55rem; line-height: 1.15;">Loading...</div>
+        <div class="metric-note">Highest priced product right now.</div>
+      </article>
+      <article class="card glass metric-card fade-in delay-2">
+        <div class="metric-label">Worker Since</div>
+        <div id="stat-worker-created" class="metric-value" style="font-size: 1.55rem; line-height: 1.15;">Loading...</div>
+        <div class="metric-note">When this worker account was created.</div>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <div class="stack">
+        <article class="card glass fade-in delay-2">
+          <div class="section-head">
+            <div>
+              <h2>Worker Profile</h2>
+              <p>Account details.</p>
+            </div>
+          </div>
+          <div class="meta-list">
+            <div class="meta-row">
+              <div class="meta-label">Username</div>
+              <div id="worker-username" class="meta-value">Loading...</div>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Worker ID</div>
+              <div id="worker-id" class="meta-value">Loading...</div>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Created</div>
+              <div id="worker-created" class="meta-value">Loading...</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card glass fade-in delay-3">
+          <div class="section-head">
+            <div>
+              <h2>Create Product</h2>
+              <p>Add a new product to inventory.</p>
+            </div>
+          </div>
+
+          <form id="product-form">
+            <label>
+              Product Name
+              <input id="product-name" type="text" required />
+            </label>
+
+            <div class="field-row">
+              <label>
+                Quantity
+                <input id="product-quantity" type="number" min="0" required />
+              </label>
+              <label>
+                Price
+                <input id="product-price" type="number" min="0" step="0.01" required />
+              </label>
+            </div>
+
+            <label>
+              Description
+              <textarea id="product-description"></textarea>
+            </label>
+
+            <div class="image-grid">
+              <label>
+                Product Image
+                <input id="product-image" type="file" accept="image/png,image/jpeg,image/webp" />
+                <div class="image-hint">PNG, JPG, or WEBP up to 2MB.</div>
+              </label>
+              <div id="product-preview" class="image-preview">
+                <span class="placeholder">No image selected</span>
+                <img id="product-preview-img" alt="Product preview" />
+              </div>
+            </div>
+            <div class="image-actions">
+              <button id="product-image-clear" class="secondary-btn" type="button">Clear Image</button>
+            </div>
+
+            <div class="actions">
+              <button id="product-submit" class="primary-btn" type="submit">Create Product</button>
+            </div>
+            <div id="product-status" class="status"></div>
+          </form>
+        </article>
+      </div>
+
+      <div class="stack">
+        <article class="card glass fade-in delay-2">
+          <div class="toolbar">
+            <div>
+              <h2>Products</h2>
+              <div class="toolbar-note">Browse, filter, and update inventory records.</div>
+            </div>
+          </div>
+
+          <form id="filters-form">
+            <div class="filters-grid">
+              <label>
+                Search Name
+                <input id="filter-name" type="text" placeholder="e.g. Laptop" />
+              </label>
+              <label>
+                Sort By
+                <select id="filter-sort-by">
+                  <option value="createdAt">Newest</option>
+                  <option value="updatedAt">Recently Updated</option>
+                  <option value="name">Name</option>
+                  <option value="price">Price</option>
+                  <option value="quantity">Quantity</option>
+                </select>
+              </label>
+              <label>
+                Min Price
+                <input id="filter-min-price" type="number" min="0" step="0.01" />
+              </label>
+              <label>
+                Max Price
+                <input id="filter-max-price" type="number" min="0" step="0.01" />
+              </label>
+              <label>
+                Min Quantity
+                <input id="filter-min-quantity" type="number" min="0" />
+              </label>
+              <label>
+                Max Quantity
+                <input id="filter-max-quantity" type="number" min="0" />
+              </label>
+              <label>
+                Order
+                <select id="filter-order">
+                  <option value="desc">Descending</option>
+                  <option value="asc">Ascending</option>
+                </select>
+              </label>
+              <label>
+                Limit
+                <select id="filter-limit">
+                  <option value="10">10</option>
+                  <option value="25" selected>25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="actions">
+              <button class="primary-btn" type="submit">Apply Filters</button>
+              <button id="reset-filters" class="secondary-btn" type="button">Reset</button>
+            </div>
+          </form>
+          <div id="table-status" class="status"></div>
+
+          <div class="products-shell">
+            <div style="overflow:auto; max-height: 640px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="products-body">
+                  <tr>
+                    <td colspan="5">Loading...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+  </main>
+
+  <div id="edit-modal-backdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2>Edit Product</h2>
+          <p style="color: var(--muted); margin-top: 6px;">
+            Update product details.
+          </p>
+        </div>
+        <button id="close-edit-modal" class="close-btn" type="button">x</button>
+      </div>
+
+      <form id="edit-form">
+        <label>
+          Product Name
+          <input id="edit-name" type="text" required />
+        </label>
+
+        <div class="field-row">
+          <label>
+            Quantity
+            <input id="edit-quantity" type="number" min="0" required />
+          </label>
+          <label>
+            Price
+            <input id="edit-price" type="number" min="0" step="0.01" required />
+          </label>
+        </div>
+
+        <label>
+          Description
+          <textarea id="edit-description"></textarea>
+        </label>
+
+        <div class="image-grid">
+          <label>
+            Product Image
+            <input id="edit-image" type="file" accept="image/png,image/jpeg,image/webp" />
+            <div class="image-hint">Upload a new image or remove the current one.</div>
+          </label>
+          <div id="edit-preview" class="image-preview">
+            <span class="placeholder">No image</span>
+            <img id="edit-preview-img" alt="Edit preview" />
+          </div>
+        </div>
+        <div class="image-actions">
+          <button id="edit-image-remove" class="secondary-btn" type="button">Remove Image</button>
+        </div>
+
+        <div class="actions">
+          <button class="primary-btn" type="submit">Save Changes</button>
+          <button id="cancel-edit" class="secondary-btn" type="button">Cancel</button>
+        </div>
+        <div id="edit-status" class="status"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.API_BASE;
+    let token = localStorage.getItem("workerToken");
+    const logoutBtn = document.getElementById("logout-btn");
+    const statusEl = document.getElementById("status");
+    const productForm = document.getElementById("product-form");
+    const productStatus = document.getElementById("product-status");
+    const productImageInput = document.getElementById("product-image");
+    const productPreview = document.getElementById("product-preview");
+    const productPreviewImg = document.getElementById("product-preview-img");
+    const productImageClearBtn = document.getElementById("product-image-clear");
+    const tableStatus = document.getElementById("table-status");
+    const refreshBtn = document.getElementById("refresh-btn");
+    const productsBody = document.getElementById("products-body");
+    const filtersForm = document.getElementById("filters-form");
+    const resetFiltersBtn = document.getElementById("reset-filters");
+    const backLink = document.getElementById("back-link");
+    const editModalBackdrop = document.getElementById("edit-modal-backdrop");
+    const closeEditModalBtn = document.getElementById("close-edit-modal");
+    const cancelEditBtn = document.getElementById("cancel-edit");
+    const editForm = document.getElementById("edit-form");
+    const editStatus = document.getElementById("edit-status");
+    const editImageInput = document.getElementById("edit-image");
+    const editPreview = document.getElementById("edit-preview");
+    const editPreviewImg = document.getElementById("edit-preview-img");
+    const editImageRemoveBtn = document.getElementById("edit-image-remove");
+    let activeEditId = null;
+    let productsCache = [];
+    let createImageData;
+    let editImageData;
+    const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+    const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+    // Use correct relative path for login page
+    backLink.href = "worker-login.html";
+
+    if (!token) {
+      window.location.href = "worker-login.html";
+    }
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("workerToken");
+      localStorage.removeItem("workerProfile");
+      window.location.href = "worker-login.html";
+    });
+
+    async function api(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const rawText = await response.text();
+      let data = {};
+
+      if (rawText) {
+        try {
+          data = JSON.parse(rawText);
+        } catch (_error) {
+          throw new Error("The server returned an invalid response.");
+        }
+      }
+
+      if (!response.ok) {
+        const error = new Error(data.error || "Request failed");
+        error.status = response.status;
+        throw error;
+      }
+
+      return data;
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+      }).format(Number(value || 0));
+    }
+
+    function formatDate(value) {
+      return value ? new Date(value).toLocaleString() : "Unavailable";
+    }
+
+    function escapeAttribute(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/'/g, "&apos;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function bytesToBase64(bytes) {
+      let binary = "";
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode(...chunk);
+      }
+      return btoa(binary);
+    }
+
+    function resolveImageSource(image) {
+      if (!image) return null;
+      if (typeof image === "string") return image;
+      if (image.data && typeof image.data === "string" && image.data.startsWith("data:")) {
+        return image.data;
+      }
+
+      const mimeType = image.mimeType || image.type;
+      const bufferLike = image.data?.data || image.data || (image.type === "Buffer" ? image.data : null);
+
+      if (mimeType && Array.isArray(bufferLike)) {
+        const bytes = Uint8Array.from(bufferLike);
+        const base64 = bytesToBase64(bytes);
+        return `data:${mimeType};base64,${base64}`;
+      }
+
+      return null;
+    }
+
+    function setImagePreview(previewEl, imgEl, src) {
+      if (src) {
+        imgEl.src = src;
+        previewEl.classList.add("has-image");
+        return;
+      }
+
+      imgEl.removeAttribute("src");
+      previewEl.classList.remove("has-image");
+    }
+
+    function validateImageFile(file) {
+      if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+        throw new Error("Image must be PNG, JPG, or WEBP.");
+      }
+
+      if (file.size > MAX_IMAGE_BYTES) {
+        throw new Error("Image must be smaller than 2MB.");
+      }
+    }
+
+    function readImageFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Unable to read image file."));
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function buildProductsQuery() {
+      const params = new URLSearchParams();
+      const name = document.getElementById("filter-name").value.trim();
+      const minPrice = document.getElementById("filter-min-price").value;
+      const maxPrice = document.getElementById("filter-max-price").value;
+      const minQuantity = document.getElementById("filter-min-quantity").value;
+      const maxQuantity = document.getElementById("filter-max-quantity").value;
+      const sortBy = document.getElementById("filter-sort-by").value;
+      const order = document.getElementById("filter-order").value;
+      const limit = document.getElementById("filter-limit").value;
+
+      if (name) {
+        params.set("name[$regex]", name);
+      }
+
+      if (minPrice) {
+        params.set("price[$gte]", minPrice);
+      }
+
+      if (maxPrice) {
+        params.set("price[$lte]", maxPrice);
+      }
+
+      if (minQuantity) {
+        params.set("quantity[$gte]", minQuantity);
+      }
+
+      if (maxQuantity) {
+        params.set("quantity[$lte]", maxQuantity);
+      }
+
+      params.set("sortBy", sortBy);
+      params.set("order", order);
+      params.set("page", "1");
+      params.set("limit", limit || "25");
+
+      return params.toString();
+    }
+
+    async function loadProfile() {
+      try {
+        const data = await api("/auth/worker/me");
+        const worker = data.worker;
+
+        document.getElementById("hero-username").textContent = worker.username;
+        document.getElementById("worker-username").textContent = worker.username;
+        document.getElementById("worker-id").textContent = worker.id;
+        document.getElementById("worker-created").textContent = formatDate(worker.createdAt);
+        document.getElementById("stat-worker-created").textContent = new Date(worker.createdAt).toLocaleDateString();
+        statusEl.textContent = "Dashboard ready.";
+        statusEl.className = "status";
+      } catch (error) {
+        statusEl.textContent = error.message;
+        statusEl.className = "status error";
+        if (error.status === 401 || error.status === 403) {
+          localStorage.removeItem("workerToken");
+          localStorage.removeItem("workerProfile");
+          setTimeout(() => {
+            window.location.href = "worker-login.html";
+          }, 1200);
+        }
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const [count, average, top] = await Promise.all([
+          api("/products/stats/count"),
+          api("/products/stats/average-price"),
+          api("/products/stats/top-expensive?limit=1"),
+        ]);
+
+        document.getElementById("stat-total").textContent = count.totalProducts;
+        document.getElementById("stat-average").textContent = formatCurrency(average.averagePrice);
+        document.getElementById("stat-top").textContent = top[0]
+          ? `${top[0].name} | ${formatCurrency(top[0].price)}`
+          : "No products";
+      } catch (error) {
+        document.getElementById("stat-total").textContent = "Error";
+        document.getElementById("stat-average").textContent = "Error";
+        document.getElementById("stat-top").textContent = error.message;
+      }
+    }
+
+    async function loadProducts() {
+      try {
+        tableStatus.textContent = "Loading products...";
+        tableStatus.className = "status";
+        const result = await api(`/products?${buildProductsQuery()}`);
+        const products = result.data || [];
+        productsCache = products;
+
+        if (products.length === 0) {
+          productsBody.innerHTML = '<tr><td colspan="5">No products found.</td></tr>';
+        } else {
+          productsBody.innerHTML = products
+            .map((product) => {
+              const productId = product._id || product.id;
+              const imageSrc = resolveImageSource(product.image);
+              const imageMarkup = imageSrc
+                ? `<img src="${escapeAttribute(imageSrc)}" alt="${escapeAttribute(product.name)}" loading="lazy" />`
+                : '<span class="placeholder">No image</span>';
+
+              return `
+                <tr>
+                  <td>
+                    <div class="product-cell">
+                      <div class="product-thumb">
+                        ${imageMarkup}
+                      </div>
+                      <div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-id">${productId}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>${product.quantity}</td>
+                  <td><span class="price-pill">${formatCurrency(product.price)}</span></td>
+                  <td>${product.description || "-"}</td>
+                  <td>
+                    <div class="product-actions">
+                      <button class="ghost-btn" data-edit-id="${productId}" type="button">Edit</button>
+                      <button class="danger-btn" data-id="${productId}" type="button">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            })
+            .join("");
+        }
+
+        tableStatus.textContent = `Loaded ${products.length} product(s).`;
+        tableStatus.className = "status";
+      } catch (error) {
+        productsBody.innerHTML = `<tr><td colspan="5">${error.message}</td></tr>`;
+        tableStatus.textContent = error.message;
+        tableStatus.className = "status error";
+      }
+    }
+
+    productImageInput.addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+
+      if (!file) {
+        createImageData = undefined;
+        setImagePreview(productPreview, productPreviewImg, null);
+        return;
+      }
+
+      try {
+        validateImageFile(file);
+        createImageData = await readImageFile(file);
+        setImagePreview(productPreview, productPreviewImg, createImageData);
+      } catch (error) {
+        productStatus.textContent = error.message;
+        productStatus.className = "status error";
+        createImageData = undefined;
+        event.target.value = "";
+        setImagePreview(productPreview, productPreviewImg, null);
+      }
+    });
+
+    productImageClearBtn.addEventListener("click", () => {
+      createImageData = undefined;
+      productImageInput.value = "";
+      setImagePreview(productPreview, productPreviewImg, null);
+    });
+
+    productForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      productStatus.textContent = "";
+      productStatus.className = "status";
+
+      const payload = {
+        name: document.getElementById("product-name").value.trim(),
+        quantity: Number(document.getElementById("product-quantity").value),
+        price: Number(document.getElementById("product-price").value),
+        description: document.getElementById("product-description").value.trim(),
+      };
+
+      if (createImageData !== undefined) {
+        payload.image = createImageData;
+      }
+
+      try {
+        await api("/products", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        productStatus.textContent = "Product created successfully.";
+        productStatus.className = "status success";
+        productForm.reset();
+        createImageData = undefined;
+        productImageInput.value = "";
+        setImagePreview(productPreview, productPreviewImg, null);
+        await Promise.all([loadProducts(), loadStats()]);
+      } catch (error) {
+        productStatus.textContent = error.message;
+        productStatus.className = "status error";
+      }
+    });
+
+    filtersForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await loadProducts();
+    });
+
+    resetFiltersBtn.addEventListener("click", async () => {
+      filtersForm.reset();
+      document.getElementById("filter-sort-by").value = "createdAt";
+      document.getElementById("filter-order").value = "desc";
+      document.getElementById("filter-limit").value = "25";
+      await loadProducts();
+    });
+
+    function openEditModal(product) {
+      activeEditId = product._id || product.id;
+      document.getElementById("edit-name").value = product.name || "";
+      document.getElementById("edit-quantity").value = product.quantity ?? 0;
+      document.getElementById("edit-price").value = product.price ?? 0;
+      document.getElementById("edit-description").value = product.description || "";
+      editImageData = undefined;
+      editImageInput.value = "";
+      setImagePreview(editPreview, editPreviewImg, resolveImageSource(product.image));
+      editStatus.textContent = "";
+      editStatus.className = "status";
+      editModalBackdrop.classList.add("open");
+    }
+
+    function closeEditModal() {
+      activeEditId = null;
+      editForm.reset();
+      editImageInput.value = "";
+      editImageData = undefined;
+      setImagePreview(editPreview, editPreviewImg, null);
+      editStatus.textContent = "";
+      editStatus.className = "status";
+      editModalBackdrop.classList.remove("open");
+    }
+
+    closeEditModalBtn.addEventListener("click", closeEditModal);
+    cancelEditBtn.addEventListener("click", closeEditModal);
+    editModalBackdrop.addEventListener("click", (event) => {
+      if (event.target === editModalBackdrop) {
+        closeEditModal();
+      }
+    });
+
+    editImageInput.addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+
+      if (!file) {
+        editImageData = undefined;
+        return;
+      }
+
+      try {
+        validateImageFile(file);
+        editImageData = await readImageFile(file);
+        setImagePreview(editPreview, editPreviewImg, editImageData);
+      } catch (error) {
+        editStatus.textContent = error.message;
+        editStatus.className = "status error";
+        editImageData = undefined;
+        event.target.value = "";
+        setImagePreview(editPreview, editPreviewImg, null);
+      }
+    });
+
+    editImageRemoveBtn.addEventListener("click", () => {
+      editImageData = null;
+      editImageInput.value = "";
+      setImagePreview(editPreview, editPreviewImg, null);
+    });
+
+    editForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!activeEditId) {
+        return;
+      }
+
+      editStatus.textContent = "";
+      editStatus.className = "status";
+
+      const payload = {
+        name: document.getElementById("edit-name").value.trim(),
+        quantity: Number(document.getElementById("edit-quantity").value),
+        price: Number(document.getElementById("edit-price").value),
+        description: document.getElementById("edit-description").value.trim(),
+      };
+
+      if (editImageData !== undefined) {
+        payload.image = editImageData;
+      }
+
+      try {
+        await api(`/products/${activeEditId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        editStatus.textContent = "Product updated successfully.";
+        editStatus.className = "status success";
+        await Promise.all([loadProducts(), loadStats()]);
+        setTimeout(closeEditModal, 500);
+      } catch (error) {
+        editStatus.textContent = error.message;
+        editStatus.className = "status error";
+      }
+    });
+
+    refreshBtn.addEventListener("click", async () => {
+      await Promise.all([loadProfile(), loadStats(), loadProducts()]);
+    });
+
+    productsBody.addEventListener("click", async (event) => {
+      const editButton = event.target.closest("button[data-edit-id]");
+
+      if (editButton) {
+        const product = productsCache.find(
+          (item) => String(item._id || item.id) === editButton.dataset.editId
+        );
+        if (product) {
+          openEditModal(product);
+        }
+        return;
+      }
+
+      const deleteButton = event.target.closest("button[data-id]");
+
+      if (!deleteButton) {
+        return;
+      }
+
+      const confirmed = window.confirm("Delete this product?");
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await api(`/products/${deleteButton.dataset.id}`, {
+          method: "DELETE",
+        });
+
+        tableStatus.textContent = "Product deleted successfully.";
+        tableStatus.className = "status success";
+        await Promise.all([loadProducts(), loadStats()]);
+      } catch (error) {
+        tableStatus.textContent = error.message;
+        tableStatus.className = "status error";
+      }
+    });
+
+    Promise.all([loadProfile(), loadStats(), loadProducts()]);
+  </script>
+</body>
+</html>
+
+
+
+
+
+

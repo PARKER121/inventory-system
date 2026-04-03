@@ -1,0 +1,269 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-body: "Plus Jakarta Sans", "Space Grotesk", "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --focus-ring: rgba(94, 234, 212, 0.4);
+  --bg-1: #070b16;
+  --bg-2: #0b1224;
+  --bg-3: #0f1a33;
+  --card: rgba(15, 23, 42, 0.65);
+  --card-strong: rgba(15, 23, 42, 0.78);
+  --line: rgba(148, 163, 184, 0.18);
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #5eead4;
+  --accent-deep: #38bdf8;
+  --accent-soft: rgba(94, 234, 212, 0.18);
+  --danger: #f43f5e;
+  --success: #22c55e;
+  --shadow: 0 30px 70px rgba(5, 10, 25, 0.55);
+  --shadow-soft: 0 18px 40px rgba(5, 10, 25, 0.4);
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  letter-spacing: -0.01em;
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(94, 234, 212, 0.16), transparent 60%),
+    radial-gradient(900px 520px at 95% 10%, rgba(56, 189, 248, 0.18), transparent 55%),
+    radial-gradient(700px 520px at 20% 100%, rgba(244, 114, 182, 0.16), transparent 60%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-2) 42%, var(--bg-3) 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: -20% 0 0;
+  background: radial-gradient(circle, rgba(94, 234, 212, 0.18), transparent 65%);
+  animation: drift 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+main,
+.shell,
+.frame,
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(20px); opacity: 1; }
+}
+
+h1, h2, h3, .eyebrow {
+  font-family: var(--font-display);
+}
+
+button, input, select, textarea {
+  font-family: var(--font-body);
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  opacity: 0.92;
+}
+
+button,
+.btn,
+.primary-btn,
+.secondary-btn,
+.ghost-btn,
+.button-link {
+  letter-spacing: -0.01em;
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+
+button,
+.btn,
+.primary-btn,
+.button-link {
+  background: linear-gradient(120deg, var(--accent), var(--accent-deep));
+  color: #06111c;
+  box-shadow: 0 18px 30px rgba(94, 234, 212, 0.25);
+  border: 0;
+}
+
+.secondary-btn,
+.ghost-btn,
+.btn.secondary {
+  background: rgba(15, 23, 42, 0.6);
+  color: var(--text);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: none;
+}
+
+.danger-btn,
+.btn.danger {
+  background: linear-gradient(120deg, #fb7185, var(--danger));
+  color: #11030a;
+  box-shadow: 0 16px 26px rgba(248, 113, 113, 0.28);
+}
+
+input,
+select,
+textarea {
+  background: rgba(15, 23, 42, 0.7) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  color: var(--text) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(148, 163, 184, 0.6);
+}
+
+.glass,
+.panel,
+.card,
+.hero-panel,
+.modal,
+.table-shell,
+.products-shell {
+  background: var(--card) !important;
+  border-color: var(--line) !important;
+  box-shadow: var(--shadow) !important;
+  backdrop-filter: blur(24px);
+}
+
+.hero {
+  background: linear-gradient(150deg, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.45)) !important;
+}
+
+.nav,
+.nav-links a {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(148, 163, 184, 0.25) !important;
+}
+
+.nav-links a.active {
+  background: rgba(94, 234, 212, 0.18) !important;
+  color: var(--accent) !important;
+}
+
+th {
+  background: rgba(15, 23, 42, 0.85) !important;
+  color: var(--muted) !important;
+}
+
+td {
+  color: var(--text) !important;
+}
+
+.price-pill,
+.badge {
+  background: rgba(94, 234, 212, 0.18) !important;
+  color: var(--accent) !important;
+}
+
+.badge.out,
+.order-status.cancelled,
+.order-status.refunded {
+  background: rgba(248, 113, 113, 0.2) !important;
+  color: #fca5a5 !important;
+}
+
+.order-status.approved {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #86efac !important;
+}
+
+.order-status.placed {
+  background: rgba(94, 234, 212, 0.2) !important;
+  color: var(--accent) !important;
+}
+
+.bg-light {
+  background: transparent !important;
+}
+
+.card,
+.card-header,
+.card-body {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--line) !important;
+}
+
+.card-header {
+  border-bottom: 1px solid var(--line) !important;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, var(--accent), var(--accent-deep)) !important;
+  border: 0 !important;
+  color: #06111c !important;
+}
+
+.form-control {
+  background: rgba(15, 23, 42, 0.7) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  color: var(--text) !important;
+}
+
+button:focus-visible,
+.btn:focus-visible,
+.primary-btn:focus-visible,
+.secondary-btn:focus-visible,
+.ghost-btn:focus-visible,
+.button-link:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+table {
+  border-spacing: 0;
+}
+
+img {
+  image-rendering: auto;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.eyebrow,
+.hero-copy p,
+.login-header p,
+.hint-card,
+.hint,
+.metric-note,
+.toolbar-note,
+.section-head p,
+.hero-panel p,
+.top > div > p {
+  display: none !important;
+}
+
+.hero {
+  min-height: auto !important;
+}

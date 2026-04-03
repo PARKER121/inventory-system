@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Registration</title>
+  <style>
+    :root {
+      --bg-1: #f3f6fb;
+      --bg-2: #e8eef9;
+      --bg-3: #fcfdff;
+      --card: rgba(255, 255, 255, 0.78);
+      --card-strong: rgba(255, 255, 255, 0.92);
+      --text: #0f172a;
+      --muted: #5f6c7b;
+      --line: rgba(15, 23, 42, 0.07);
+      --accent: #f97316;
+      --accent-deep: #c2410c;
+      --accent-soft: rgba(249, 115, 22, 0.14);
+      --danger: #d92d20;
+      --success: #067647;
+      --shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.07);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--text);
+      font-family: "SF Pro Display", "SF Pro Text", "Helvetica Neue", -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(249, 115, 22, 0.16), transparent 24%),
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(14, 116, 144, 0.12), transparent 24%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-3) 42%, var(--bg-2) 100%);
+    }
+
+    .frame {
+      width: min(1120px, 100%);
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 720px;
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.82), rgba(247, 250, 255, 0.72)),
+        radial-gradient(circle at top right, rgba(249, 115, 22, 0.14), transparent 30%);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      bottom: -90px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.16), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.9rem, 6vw, 5rem);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+      font-weight: 750;
+      max-width: 10ch;
+    }
+
+    .hero-copy p {
+      margin-top: 20px;
+      max-width: 31rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.75;
+    }
+
+    .login {
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(180deg, var(--card-strong), rgba(245, 248, 252, 0.86));
+    }
+
+    .login-header {
+      margin-bottom: 24px;
+    }
+
+    .login-header h2 {
+      font-size: clamp(1.95rem, 4vw, 2.7rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      font-weight: 750;
+      margin-bottom: 10px;
+    }
+
+    .login-header p {
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: var(--radius-md);
+      padding: 15px 16px;
+      font: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+    }
+
+    input:focus {
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+      transform: translateY(-1px);
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 15px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(180deg, #f97316, var(--accent));
+      box-shadow: 0 16px 28px rgba(249, 115, 22, 0.24);
+      transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 32px rgba(16, 185, 129, 0.26);
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: progress;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .status {
+      min-height: 24px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .status.error { color: var(--danger); }
+    .status.success { color: var(--success); }
+
+    .hint-card {
+      margin-top: 20px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(248,250,253,0.9));
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.92rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .oauth-section {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .oauth-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .oauth-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.1);
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--text);
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .oauth-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .oauth-note {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .hint-link {
+      margin-top: 14px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .hint-link a {
+      color: var(--accent-deep);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.9em;
+    }
+
+    .fade-up {
+      animation: fadeUp 420ms ease both;
+    }
+
+    .delay-1 { animation-delay: 60ms; }
+    .delay-2 { animation-delay: 120ms; }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 940px) {
+      .frame {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 620px) {
+      body {
+        padding: 12px;
+      }
+
+      .hero,
+      .login {
+        padding: 22px 18px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <script src="assets/js/shared.js"></script>
+</head>
+<body>
+  <main class="frame">
+    <section class="panel hero fade-up">
+      <div>
+        <div class="eyebrow">Storefront</div>
+        <div class="hero-copy">
+          <div>
+          <h1>Create your shopper account.</h1>
+          <p>
+              Register once to browse products, build your cart, and place orders.
+          </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel login fade-up delay-1">
+      <div class="login-header">
+        <h2>Create Account</h2>
+        <p>Set up your customer account to start shopping.</p>
+      </div>
+
+      <form id="register-form">
+        <label>
+          Username
+          <input id="username" name="username" type="text" autocomplete="username" required />
+        </label>
+
+        <label>
+          Password
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+        </label>
+
+        <button id="submit-btn" type="submit">Create Account</button>
+        <div id="status" class="status"></div>
+      </form>
+
+      <div class="oauth-section">
+        <div class="oauth-note">Or sign up with:</div>
+        <div class="oauth-grid">
+          <a class="oauth-btn" href="/auth/oauth/google">Continue with Google</a>
+          <a class="oauth-btn" href="/auth/oauth/github">Continue with GitHub</a>
+          <a class="oauth-btn" href="/auth/oauth/apple">Continue with iCloud</a>
+        </div>
+      </div>
+
+      <div class="hint-card hint">
+        Already have an account? Head back to the sign-in screen.
+      </div>
+      <div class="hint-link">
+        Already registered? <a href="user-login.html">Sign in here</a>.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = window.API_BASE;
+    const form = document.getElementById("register-form");
+    const statusEl = document.getElementById("status");
+    const submitBtn = document.getElementById("submit-btn");
+    const hintEl = document.querySelector(".hint");
+    const DASHBOARD_PATH = "user-dashboard.html";
+
+    if (localStorage.getItem("userToken")) {
+      window.location.href = DASHBOARD_PATH;
+    }
+
+    function handleOAuthRedirect() {
+      const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
+      if (!hash) {
+        return;
+      }
+      const params = new URLSearchParams(hash);
+      const token = params.get("token");
+      const error = params.get("error");
+
+      if (token) {
+        localStorage.setItem("userToken", token);
+        window.history.replaceState({}, document.title, window.location.pathname);
+        window.location.href = DASHBOARD_PATH;
+        return;
+      }
+
+      if (error) {
+        statusEl.textContent = decodeURIComponent(error.replace(/\+/g, " "));
+        statusEl.classList.add("error");
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      statusEl.textContent = "";
+      statusEl.className = "status";
+      submitBtn.disabled = true;
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/user/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const rawText = await response.text();
+        let data = {};
+
+        if (rawText) {
+          try {
+            data = JSON.parse(rawText);
+          } catch (_error) {
+            throw new Error("The server returned an invalid response. Please try again.");
+          }
+        }
+
+        if (!response.ok) {
+          throw new Error(data.error || "Registration failed");
+        }
+
+        if (!data.token || !data.user) {
+          throw new Error("Registration response is missing user data or token.");
+        }
+
+        localStorage.setItem("userToken", data.token);
+        localStorage.setItem("userProfile", JSON.stringify(data.user));
+        statusEl.textContent = "Account created. Opening dashboard...";
+        statusEl.classList.add("success");
+        setTimeout(() => {
+          window.location.href = DASHBOARD_PATH;
+        }, 450);
+      } catch (error) {
+        statusEl.textContent = error.message;
+        statusEl.classList.add("error");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    handleOAuthRedirect();
+    hintEl.innerHTML = 'Already have an account? <a href=\"user-login.html\">Sign in here</a>.';
+  </script>
+</body>
+</html>
+
+
+
+
+

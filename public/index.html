@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Nexus</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-0: #070b16;
+      --bg-1: #0b1224;
+      --bg-2: #0f1a33;
+      --accent: #5eead4;
+      --accent-2: #60a5fa;
+      --accent-3: #f472b6;
+      --text: #e2e8f0;
+      --muted: #9aa4b2;
+      --glass: rgba(15, 23, 42, 0.55);
+      --line: rgba(148, 163, 184, 0.2);
+      --shadow: 0 24px 60px rgba(5, 10, 25, 0.65);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Manrope", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(94, 234, 212, 0.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(96, 165, 250, 0.18), transparent 55%),
+        radial-gradient(800px 600px at 20% 100%, rgba(244, 114, 182, 0.14), transparent 60%),
+        linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, var(--bg-2) 100%);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .shell {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 60px;
+      display: grid;
+      gap: 28px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 22px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.35);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: var(--text);
+      font-weight: 600;
+      background: rgba(15, 23, 42, 0.45);
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+
+    .nav-links a:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.4);
+    }
+
+    .hero {
+      position: relative;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(160deg, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.4));
+      border: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      padding: 48px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+    }
+
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2.6rem, 4.5vw, 4.4rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      margin: 0 0 12px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin: 0 0 22px;
+      max-width: 48ch;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+
+    .btn.primary {
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      color: #06111c;
+      box-shadow: 0 14px 26px rgba(94, 234, 212, 0.25);
+    }
+
+    .btn.secondary {
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .hero-panel {
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      background: rgba(8, 15, 30, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero-panel h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .hero-panel .chip {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(15, 23, 42, 0.5);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      border-radius: var(--radius-lg);
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 18px;
+      box-shadow: 0 20px 40px rgba(5, 10, 25, 0.45);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .card:hover { transform: translateY(-3px); }
+
+    .card h4 {
+      margin: 8px 0 6px;
+      font-size: 1rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .orbital {
+      position: absolute;
+      inset: -20% auto auto 55%;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(94, 234, 212, 0.2), transparent 65%);
+      animation: float 8s ease-in-out infinite;
+      filter: blur(2px);
+      opacity: 0.8;
+    }
+
+    .orbit {
+      position: absolute;
+      inset: 18% 8% auto auto;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      animation: spin 18s linear infinite;
+    }
+
+    .orbit::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(120deg, var(--accent), var(--accent-3));
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 20px rgba(94, 234, 212, 0.8);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(14px); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .glow-line {
+      height: 2px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, rgba(94, 234, 212, 0.8), transparent);
+      opacity: 0.6;
+    }
+
+    .cta-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(8, 15, 30, 0.6);
+    }
+
+    .cta-strip p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .hero { padding: 32px 22px; }
+      .nav { padding: 12px 16px; }
+    }
+  </style>
+  <script src="assets/js/shared.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <nav class="nav">
+      <div class="brand">Inventory Nexus</div>
+      <div class="nav-links">
+        <a href="user-login.html">User</a>
+        <a href="worker-login.html">Worker</a>
+        <a href="admin-login.html">Admin</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="orbital"></div>
+      <div class="orbit"></div>
+      <div>
+        <h1>Future-ready commerce for your inventory.</h1>
+        <p>
+          A unified workspace for shoppers, staff, and administrators. Track stock, manage orders,
+          and deliver a clean buying flow on any device.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="user-login.html">Shop Now</a>
+          <a class="btn secondary" href="admin-login.html">Admin Console</a>
+          <a class="btn secondary" href="worker-login.html">Worker Console</a>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <h3>Live Systems</h3>
+        <div class="chip">Inventory • Orders • Staff</div>
+        <div class="chip">Realtime stock tracking</div>
+        <div class="chip">Secure role access</div>
+        <div class="chip">Modern storefront flow</div>
+      </div>
+    </section>
+
+    <div class="glow-line"></div>
+
+    <section class="grid">
+      <article class="card">
+        <h4>Smart Stock</h4>
+        <p>Track availability, manage images, and keep product data tidy.</p>
+      </article>
+      <article class="card">
+        <h4>Order Control</h4>
+        <p>Approve, refund, and reopen orders with clear status flow.</p>
+      </article>
+      <article class="card">
+        <h4>Staff Tools</h4>
+        <p>Workers can update inventory instantly with controlled access.</p>
+      </article>
+      <article class="card">
+        <h4>Secure Access</h4>
+        <p>Role-based login for admins, workers, and shoppers.</p>
+      </article>
+    </section>
+
+    <section class="cta-strip">
+      <p>Ready to launch the workspace?</p>
+      <div class="cta-row">
+        <a class="btn primary" href="user-register.html">Create User Account</a>
+        <a class="btn secondary" href="admin-register.html">Create Admin</a>
+      </div>
+    </section>
+
+    <div class="footer">Inventory Nexus • Crafted for modern retail teams</div>
+  </main>
+</body>
+</html>
+

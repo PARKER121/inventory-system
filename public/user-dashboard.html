@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Dashboard</title>
+  <style>
+    :root {
+      --bg-1: #fff7ed;
+      --bg-2: #ffedd5;
+      --bg-3: #fffaf3;
+      --card: rgba(255, 255, 255, 0.85);
+      --line: rgba(15, 23, 42, 0.08);
+      --text: #0f172a;
+      --muted: #6b7280;
+      --accent: #f97316;
+      --accent-deep: #c2410c;
+      --accent-soft: rgba(249, 115, 22, 0.16);
+      --danger: #b91c1c;
+      --success: #15803d;
+      --shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "SF Pro Display", "SF Pro Text", "Helvetica Neue", -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(249, 115, 22, 0.22), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(251, 146, 60, 0.18), transparent 30%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-3) 45%, var(--bg-2) 100%);
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 22px auto 50px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+    }
+
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 22px;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      font-size: 1.1rem;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .nav-chip {
+      border-radius: 999px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+      padding: 28px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 10px 0 8px;
+      font-size: clamp(2.2rem, 4vw, 3.6rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    p { margin: 0; color: var(--muted); line-height: 1.7; }
+
+    .meta-card {
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow-soft);
+      display: grid;
+      gap: 14px;
+    }
+
+    .meta-row {
+      display: grid;
+      gap: 6px;
+    }
+
+    .meta-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .meta-value { font-weight: 700; }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(180deg, #fb923c, var(--accent));
+      color: white;
+      box-shadow: 0 14px 26px rgba(249, 115, 22, 0.28);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 18px 30px rgba(249, 115, 22, 0.3); }
+    .btn.secondary { background: rgba(255,255,255,0.9); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar input {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font: inherit;
+      min-width: 200px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .sort-select {
+      border-radius: 999px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .filter-chip {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+
+    .filter-chip.active {
+      background: rgba(249, 115, 22, 0.16);
+      border-color: rgba(249, 115, 22, 0.32);
+      color: var(--accent-deep);
+    }
+
+    .results-count {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card-item {
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.92);
+      display: grid;
+      gap: 10px;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .card-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+    }
+
+    .card-media {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: linear-gradient(140deg, rgba(249, 115, 22, 0.08), rgba(255, 255, 255, 0.9));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-media .placeholder {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .card-item h3 { margin: 0; font-size: 1.05rem; }
+    .price { font-weight: 700; color: var(--accent-deep); }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(249, 115, 22, 0.16);
+      color: var(--accent-deep);
+    }
+
+    .badge.category {
+      background: rgba(15, 23, 42, 0.08);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .badge.out {
+      background: rgba(185, 28, 28, 0.16);
+      color: var(--danger);
+    }
+
+    .cart {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      position: sticky;
+      top: 18px;
+      align-self: start;
+      border: 1px solid rgba(249, 115, 22, 0.22);
+    }
+
+    .cart-items {
+      display: grid;
+      gap: 12px;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .cart-item:last-child { border-bottom: 0; }
+
+    .cart-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .cart-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .cart-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cart-info {
+      display: grid;
+      gap: 4px;
+    }
+
+    .qty-input {
+      width: 60px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+    }
+
+    .summary {
+      margin-top: 6px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      display: grid;
+      gap: 8px;
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.95rem;
+    }
+
+    .summary-total {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .note {
+      display: grid;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .note textarea {
+      min-height: 70px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    .status { font-size: 0.95rem; color: var(--muted); min-height: 22px; }
+    .status.error { color: var(--danger); }
+    .status.success { color: var(--success); }
+
+    .orders {
+      padding: 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .order {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255,255,255,0.92);
+    }
+
+    .order h4 { margin: 0 0 6px; font-size: 1rem; }
+
+    .order-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .order-status {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(15, 23, 42, 0.08);
+      color: var(--text);
+    }
+
+    .order-status.approved {
+      background: rgba(21, 128, 61, 0.18);
+      color: #15803d;
+    }
+
+    .order-status.cancelled,
+    .order-status.refunded {
+      background: rgba(185, 28, 28, 0.18);
+      color: #b91c1c;
+    }
+
+    .order-status.placed {
+      background: rgba(249, 115, 22, 0.16);
+      color: var(--accent-deep);
+    }
+
+    @media (max-width: 960px) {
+      .top { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .cart { position: static; }
+    }
+
+    @media (max-width: 640px) {
+      .shell { width: min(100%, calc(100% - 18px)); }
+      .top { padding: 20px; }
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <script src="assets/js/shared.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <nav class="panel top-nav">
+      <div class="brand">Storefront</div>
+      <div class="nav-actions">
+        <a class="nav-chip" href="#orders-list">Orders</a>
+        <a class="nav-chip" href="#cart-items">Cart</a>
+        <span class="nav-chip" id="cart-count">0 items</span>
+      </div>
+    </nav>
+
+    <section class="panel top">
+      <div>
+        <div class="eyebrow">Storefront</div>
+        <h1>Welcome back, <span id="user-name">shopper</span>.</h1>
+        <p>Browse products, build a cart, and place orders right from this dashboard.</p>
+      </div>
+      <div class="meta-card">
+        <div class="meta-row">
+          <div class="meta-label">Signed In As</div>
+          <div id="user-username" class="meta-value">Loading...</div>
+        </div>
+        <div class="actions">
+          <button id="refresh-btn" class="btn secondary" type="button">Refresh</button>
+          <a id="logout-btn" class="btn" href="user-login.html">Log Out</a>
+        </div>
+        <div id="profile-status" class="status"></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div>
+        <div class="toolbar">
+          <h2>Products</h2>
+          <div class="controls">
+            <input id="search-input" type="search" placeholder="Search products" />
+            <select id="sort-select" class="sort-select">
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name-asc">Name: A-Z</option>
+              <option value="name-desc">Name: Z-A</option>
+              <option value="newest">Newest</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-row" id="filter-row">
+          <button class="filter-chip active" data-filter="all" type="button">All</button>
+          <button class="filter-chip" data-filter="instock" type="button">In Stock</button>
+          <button class="filter-chip" data-filter="under-25" type="button">Under $25</button>
+          <button class="filter-chip" data-filter="mid" type="button">$25 - $100</button>
+          <button class="filter-chip" data-filter="over-100" type="button">$100+</button>
+        </div>
+        <div class="results-count" id="results-count">Loading products...</div>
+        <div id="products" class="cards"></div>
+        <div id="products-status" class="status"></div>
+      </div>
+
+      <aside class="panel cart">
+        <h2>Checkout</h2>
+        <div id="cart-items" class="cart-items"></div>
+        <div class="meta-row">
+          <div class="meta-label">Total</div>
+          <div id="cart-total" class="meta-value">$0.00</div>
+        </div>
+        <div class="summary">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="summary-subtotal">$0.00</span>
+          </div>
+          <div class="summary-row">
+            <span>Estimated Tax</span>
+            <span id="summary-tax">$0.00</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span id="summary-shipping">Free</span>
+          </div>
+          <div class="summary-row summary-total">
+            <span>Total</span>
+            <span id="summary-total">$0.00</span>
+          </div>
+        </div>
+        <label class="note">
+          Order note
+          <textarea id="order-note" placeholder="Add delivery notes or preferences"></textarea>
+        </label>
+        <div class="actions">
+          <button id="checkout-btn" class="btn" type="button">Place Order</button>
+          <button id="clear-cart-btn" class="btn secondary" type="button">Clear Cart</button>
+        </div>
+        <div id="cart-status" class="status"></div>
+      </aside>
+    </section>
+
+    <section class="panel orders">
+      <h2>Recent Orders</h2>
+      <div id="orders-list"></div>
+      <div id="orders-status" class="status"></div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = window.API_BASE;
+    const token = localStorage.getItem("userToken");
+    const productsEl = document.getElementById("products");
+    const cartItemsEl = document.getElementById("cart-items");
+    const cartTotalEl = document.getElementById("cart-total");
+    const productsStatus = document.getElementById("products-status");
+    const cartStatus = document.getElementById("cart-status");
+    const ordersList = document.getElementById("orders-list");
+    const ordersStatus = document.getElementById("orders-status");
+    const refreshBtn = document.getElementById("refresh-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+    const searchInput = document.getElementById("search-input");
+    const sortSelect = document.getElementById("sort-select");
+    const filterRow = document.getElementById("filter-row");
+    const resultsCount = document.getElementById("results-count");
+    const profileStatus = document.getElementById("profile-status");
+    const cartCountEl = document.getElementById("cart-count");
+    const summarySubtotalEl = document.getElementById("summary-subtotal");
+    const summaryTaxEl = document.getElementById("summary-tax");
+    const summaryShippingEl = document.getElementById("summary-shipping");
+    const summaryTotalEl = document.getElementById("summary-total");
+    const orderNoteEl = document.getElementById("order-note");
+    const clearCartBtn = document.getElementById("clear-cart-btn");
+    const cart = new Map();
+    let productsCache = [];
+    let activeFilter = "all";
+
+    if (!token) {
+      window.location.href = "user-login.html";
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "USD",
+      }).format(Number(value || 0));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function bytesToBase64(bytes) {
+      let binary = "";
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode(...chunk);
+      }
+      return btoa(binary);
+    }
+
+    function resolveImageSource(image) {
+      if (!image) return null;
+      if (typeof image === "string") return image;
+      if (image.data && typeof image.data === "string" && image.data.startsWith("data:")) {
+        return image.data;
+      }
+
+      const mimeType = image.mimeType || image.type;
+      const bufferLike = image.data?.data || image.data || (image.type === "Buffer" ? image.data : null);
+
+      if (mimeType && Array.isArray(bufferLike)) {
+        const bytes = Uint8Array.from(bufferLike);
+        const base64 = bytesToBase64(bytes);
+        return `data:${mimeType};base64,${base64}`;
+      }
+
+      return null;
+    }
+
+    function getCategory(product) {
+      const text = `${product.name || ""} ${product.description || ""}`.toLowerCase();
+      if (text.match(/phone|tablet|laptop|camera|speaker|headphone|console|tv/)) {
+        return "Electronics";
+      }
+      if (text.match(/shoe|sneaker|hoodie|jacket|shirt|pants|dress|apparel/)) {
+        return "Apparel";
+      }
+      if (text.match(/coffee|tea|snack|food|drink|grocery/)) {
+        return "Grocery";
+      }
+      if (text.match(/chair|desk|lamp|sofa|decor|home/)) {
+        return "Home";
+      }
+      if (text.match(/beauty|skin|hair|makeup|fragrance/)) {
+        return "Beauty";
+      }
+      return "General";
+    }
+
+    function sortProducts(list) {
+      const copy = [...list];
+      switch (sortSelect.value) {
+        case "price-asc":
+          return copy.sort((a, b) => Number(a.price) - Number(b.price));
+        case "price-desc":
+          return copy.sort((a, b) => Number(b.price) - Number(a.price));
+        case "name-asc":
+          return copy.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+        case "name-desc":
+          return copy.sort((a, b) => String(b.name).localeCompare(String(a.name)));
+        case "newest":
+          return copy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        default:
+          return copy.sort((a, b) => Number(b.quantity) - Number(a.quantity));
+      }
+    }
+
+    function matchesFilter(product) {
+      const price = Number(product.price);
+      if (activeFilter === "instock") return product.quantity > 0;
+      if (activeFilter === "under-25") return price < 25;
+      if (activeFilter === "mid") return price >= 25 && price <= 100;
+      if (activeFilter === "over-100") return price > 100;
+      return true;
+    }
+
+    function applyFilters() {
+      const term = searchInput.value.trim().toLowerCase();
+      let list = productsCache.filter(matchesFilter);
+      if (term) {
+        list = list.filter((item) => {
+          const haystack = `${item.name || ""} ${item.description || ""}`.toLowerCase();
+          return haystack.includes(term);
+        });
+      }
+      const sorted = sortProducts(list);
+      renderProducts(sorted);
+      resultsCount.textContent = `${sorted.length} product${sorted.length === 1 ? "" : "s"}`;
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const rawText = await response.text();
+      let data = {};
+
+      if (rawText) {
+        try {
+          data = JSON.parse(rawText);
+        } catch (_error) {
+          throw new Error("The server returned an invalid response.");
+        }
+      }
+
+      if (!response.ok) {
+        const errorMessage = data.error || "Request failed";
+        const error = new Error(errorMessage);
+        error.status = response.status;
+        if (response.status === 404 && (path === "/orders" || path.includes("/orders/"))) {
+          error.message = "Backend is outdated or not restarted; run node server.js from the project root.";
+        }
+        throw error;
+      }
+
+      return data;
+    }
+
+    async function loadProfile() {
+      try {
+        const data = await api("/auth/user/me");
+        document.getElementById("user-username").textContent = data.user.username;
+        document.getElementById("user-name").textContent = data.user.username;
+        profileStatus.textContent = "Profile ready.";
+        profileStatus.className = "status";
+      } catch (error) {
+        profileStatus.textContent = error.message;
+        profileStatus.className = "status error";
+      }
+    }
+
+    function renderProducts(list) {
+      if (list.length === 0) {
+        productsEl.innerHTML = "<p class=\"muted\">No products available.</p>";
+        return;
+      }
+
+      productsEl.innerHTML = list
+        .map((product) => {
+          const id = product._id || product.id;
+          const inStock = product.quantity > 0;
+          const safeName = escapeHtml(product.name);
+          const safeDescription = escapeHtml(product.description || "No description provided.");
+          const imageSrc = resolveImageSource(product.image);
+          const imageMarkup = imageSrc
+            ? `<img src="${escapeHtml(imageSrc)}" alt="${safeName}" loading="lazy" />`
+            : '<span class="placeholder">No image</span>';
+          const badgeMarkup = inStock
+            ? `<span class="badge">In Stock</span>`
+            : `<span class="badge out">Sold Out</span>`;
+          const category = escapeHtml(getCategory(product));
+          return `
+            <article class="card-item">
+              <div class="card-media">${imageMarkup}</div>
+              <div class="card-meta">
+                <span class="badge category">${category}</span>
+                ${badgeMarkup}
+              </div>
+              <h3>${safeName}</h3>
+              <div class="card-meta">
+                <div class="price">${formatCurrency(product.price)}</div>
+              </div>
+              <div class="muted">${safeDescription}</div>
+              <div class="muted">In stock: ${product.quantity}</div>
+              <button class="btn ${inStock ? "" : "secondary"}" data-id="${id}" ${inStock ? "" : "disabled"}>Add to Cart</button>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    async function loadProducts() {
+      try {
+        productsStatus.textContent = "Loading products...";
+        const result = await fetch(`${API_BASE}/products?limit=50`);
+        const data = await result.json();
+        productsCache = data.data || [];
+        applyFilters();
+        productsStatus.textContent = "";
+      } catch (error) {
+        productsStatus.textContent = error.message;
+        productsStatus.className = "status error";
+      }
+    }
+
+    function renderCart() {
+      const items = Array.from(cart.values());
+      if (items.length === 0) {
+        cartItemsEl.innerHTML = "<p class=\"muted\">Your cart is empty.</p>";
+        cartTotalEl.textContent = formatCurrency(0);
+        cartCountEl.textContent = "0 items";
+        summarySubtotalEl.textContent = formatCurrency(0);
+        summaryTaxEl.textContent = formatCurrency(0);
+        summaryShippingEl.textContent = "Free";
+        summaryTotalEl.textContent = formatCurrency(0);
+        return;
+      }
+
+      let total = 0;
+      let totalItems = 0;
+      cartItemsEl.innerHTML = items
+        .map((item) => {
+          total += item.price * item.quantity;
+          totalItems += item.quantity;
+          const imageSrc = resolveImageSource(item.image);
+          const imageMarkup = imageSrc
+            ? `<img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(item.name)}" loading="lazy" />`
+            : '<span class="placeholder">No image</span>';
+          return `
+            <div class="cart-item">
+              <div class="cart-thumb">${imageMarkup}</div>
+              <div class="cart-info">
+                <strong>${item.name}</strong>
+                <div class="muted">${formatCurrency(item.price)} each</div>
+              </div>
+              <div class="cart-actions">
+                <input class="qty-input" type="number" min="1" value="${item.quantity}" data-id="${item.id}" />
+                <button class="btn secondary" data-remove="${item.id}" type="button">Remove</button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+      cartTotalEl.textContent = formatCurrency(total);
+      cartCountEl.textContent = `${totalItems} item${totalItems === 1 ? "" : "s"}`;
+      summarySubtotalEl.textContent = formatCurrency(total);
+      summaryTaxEl.textContent = formatCurrency(0);
+      summaryShippingEl.textContent = "Free";
+      summaryTotalEl.textContent = formatCurrency(total);
+    }
+
+    async function loadOrders() {
+      try {
+        const result = await api("/orders");
+        const orders = result.data || [];
+        if (orders.length === 0) {
+          ordersList.innerHTML = "<p class=\"muted\">No orders yet.</p>";
+          return;
+        }
+        ordersList.innerHTML = orders
+          .map((order) => {
+            const orderTotal = formatCurrency(order.subtotal || 0);
+            const itemsList = (order.items || [])
+              .map((item) => `${item.name} x${item.quantity}`)
+              .join(", ");
+            const status = order.status || "placed";
+            const canCancel = status !== "approved" && status !== "cancelled" && status !== "refunded";
+            return `
+              <div class="order">
+                <div class="order-header">
+                  <h4>Order ${order._id || ""}</h4>
+                  <span class="order-status ${status}">${status}</span>
+                </div>
+                <div class="muted">${new Date(order.createdAt).toLocaleString()}</div>
+                <div class="muted">${itemsList}</div>
+                <strong>Total: ${orderTotal}</strong>
+                ${canCancel ? `<div style="margin-top:8px;"><button class="btn secondary" data-cancel="${order._id}">Cancel Order</button></div>` : ""}
+              </div>
+            `;
+          })
+          .join("");
+      } catch (error) {
+        ordersStatus.textContent = error.message;
+        ordersStatus.className = "status error";
+      }
+    }
+
+    productsEl.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-id]");
+      if (!button) return;
+      const product = productsCache.find((item) => (item._id || item.id) === button.dataset.id);
+      if (!product) return;
+      const existing = cart.get(button.dataset.id);
+      const nextQty = (existing?.quantity || 0) + 1;
+      cart.set(button.dataset.id, {
+        id: button.dataset.id,
+        name: product.name,
+        price: product.price,
+        image: product.image || null,
+        quantity: nextQty,
+      });
+      renderCart();
+    });
+
+    cartItemsEl.addEventListener("input", (event) => {
+      const input = event.target.closest(".qty-input");
+      if (!input) return;
+      const id = input.dataset.id;
+      const qty = Number(input.value);
+      if (!cart.has(id)) return;
+      if (!Number.isInteger(qty) || qty < 1) {
+        input.value = cart.get(id).quantity;
+        return;
+      }
+      cart.get(id).quantity = qty;
+      renderCart();
+    });
+
+    cartItemsEl.addEventListener("click", (event) => {
+      const removeBtn = event.target.closest("button[data-remove]");
+      if (!removeBtn) return;
+      cart.delete(removeBtn.dataset.remove);
+      renderCart();
+    });
+
+    clearCartBtn.addEventListener("click", () => {
+      cart.clear();
+      renderCart();
+    });
+
+    document.getElementById("checkout-btn").addEventListener("click", async () => {
+      const items = Array.from(cart.values()).map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+      }));
+
+      if (items.length === 0) {
+        cartStatus.textContent = "Add items before placing an order.";
+        cartStatus.className = "status error";
+        return;
+      }
+
+      cartStatus.textContent = "Placing order...";
+      cartStatus.className = "status";
+
+      try {
+        const note = orderNoteEl.value.trim();
+        const payload = { items };
+        if (note) {
+          payload.note = note;
+        }
+        await api("/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        cart.clear();
+        renderCart();
+        orderNoteEl.value = "";
+        cartStatus.textContent = "Order placed successfully.";
+        cartStatus.className = "status success";
+        await Promise.all([loadProducts(), loadOrders()]);
+      } catch (error) {
+        cartStatus.textContent = error.message;
+        cartStatus.className = "status error";
+      }
+    });
+
+    ordersList.addEventListener("click", async (event) => {
+      const btn = event.target.closest("button[data-cancel]");
+      if (!btn) return;
+      const confirmed = window.confirm("Cancel this order?");
+      if (!confirmed) return;
+
+      try {
+        await api(`/orders/${btn.dataset.cancel}/cancel`, { method: "POST" });
+        await loadOrders();
+      } catch (error) {
+        ordersStatus.textContent = error.message;
+        ordersStatus.className = "status error";
+      }
+    });
+
+    searchInput.addEventListener("input", () => {
+      applyFilters();
+    });
+
+    sortSelect.addEventListener("change", () => {
+      applyFilters();
+    });
+
+    filterRow.addEventListener("click", (event) => {
+      const chip = event.target.closest(".filter-chip");
+      if (!chip) return;
+      activeFilter = chip.dataset.filter || "all";
+      filterRow.querySelectorAll(".filter-chip").forEach((btn) => {
+        btn.classList.toggle("active", btn === chip);
+      });
+      applyFilters();
+    });
+
+    refreshBtn.addEventListener("click", () => {
+      Promise.all([loadProfile(), loadProducts(), loadOrders(), renderCart()]);
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userProfile");
+    });
+
+    Promise.all([loadProfile(), loadProducts(), loadOrders()]);
+    renderCart();
+  </script>
+</body>
+</html>
+
+
+
+
+

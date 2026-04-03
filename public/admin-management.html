@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Management</title>
+  <style>
+    :root {
+      --bg-1: #f3f6fb;
+      --bg-2: #e8eef9;
+      --bg-3: #fcfdff;
+      --card: rgba(255, 255, 255, 0.78);
+      --card-strong: rgba(255, 255, 255, 0.92);
+      --line: rgba(15, 23, 42, 0.07);
+      --text: #0f172a;
+      --muted: #5f6c7b;
+      --accent: #0a84ff;
+      --accent-deep: #005fcc;
+      --accent-soft: rgba(10, 132, 255, 0.1);
+      --danger: #d92d20;
+      --success: #067647;
+      --shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.07);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "SF Pro Display", "SF Pro Text", "Helvetica Neue", -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(10, 132, 255, 0.20), transparent 24%),
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.12), transparent 24%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-3) 42%, var(--bg-2) 100%);
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 22px auto 40px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .glass {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 22px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .nav-links a.active {
+      background: var(--accent-soft);
+      color: var(--accent-deep);
+      border-color: rgba(10, 132, 255, 0.2);
+    }
+
+    .hero {
+      padding: 26px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.82), rgba(247, 250, 255, 0.72)),
+        radial-gradient(circle at top right, rgba(10, 132, 255, 0.12), transparent 30%);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+      font-weight: 700;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-size: clamp(2.4rem, 4vw, 3.6rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.7;
+      max-width: 48ch;
+    }
+
+    .hero-panel {
+      padding: 20px;
+      background: linear-gradient(180deg, var(--card-strong), rgba(245, 248, 252, 0.86));
+      border: 1px solid rgba(17, 24, 39, 0.05);
+      border-radius: var(--radius-lg);
+      display: grid;
+      gap: 12px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .status { color: var(--muted); min-height: 20px; }
+    .status.error { color: var(--danger); }
+    .status.success { color: var(--success); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.86);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filters input,
+    .filters select {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font: inherit;
+    }
+
+    .table-shell {
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.92);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      font-size: 0.95rem;
+    }
+
+    th {
+      background: rgba(248,250,252,0.92);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      color: var(--text);
+    }
+
+    .btn.primary {
+      background: linear-gradient(180deg, #38a3ff, var(--accent));
+      color: white;
+      box-shadow: 0 16px 28px rgba(10, 132, 255, 0.24);
+      border: 0;
+    }
+
+    .btn.danger {
+      background: linear-gradient(180deg, #ef4444, var(--danger));
+      color: white;
+      border: 0;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.36);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(720px, 100%);
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 26px;
+      box-shadow: 0 30px 90px rgba(15, 23, 42, 0.20);
+      padding: 24px;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    input {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <script src="assets/js/shared.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <nav class="glass nav">
+      <div style="font-weight: 700;">Management</div>
+      <div class="nav-links">
+        <a href="admin-dashboard.html">Dashboard</a>
+        <a href="admin-products.html">Products</a>
+        <a href="admin-workers.html">Workers</a>
+        <a href="admin-account.html">Account</a>
+        <a class="active" href="admin-management.html">Management</a>
+      </div>
+    </nav>
+
+    <section class="hero glass">
+      <div>
+        <div class="eyebrow">Admin Control</div>
+        <h1>Manage users and staff.</h1>
+        <p>View and remove users, workers, and other admins from one place.</p>
+      </div>
+      <div class="hero-panel">
+        <div>
+          <strong>Signed in as</strong>
+          <div id="admin-username">Loading...</div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="admin-login.html" id="logout-btn">Log Out</a>
+        </div>
+        <div id="page-status" class="status"></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <h2>Create Admin</h2>
+            <p style="color: var(--muted);">Invite another admin to manage the system.</p>
+          </div>
+        </div>
+        <form id="create-admin-form">
+          <label>
+            Username
+            <input id="create-admin-username" type="text" required />
+          </label>
+          <label>
+            Password
+            <input id="create-admin-password" type="password" required />
+          </label>
+          <div class="actions">
+            <button class="btn primary" type="submit">Create Admin</button>
+          </div>
+          <div id="create-admin-status" class="status"></div>
+        </form>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Admins</h2>
+          <div class="actions">
+            <button id="refresh-admins" class="btn" type="button">Refresh</button>
+          </div>
+        </div>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>ID</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="admins-body">
+              <tr><td colspan="4">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="admins-status" class="status"></div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Workers</h2>
+          <div class="actions">
+            <button id="refresh-workers" class="btn" type="button">Refresh</button>
+          </div>
+        </div>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>ID</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="workers-body">
+              <tr><td colspan="4">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="workers-status" class="status"></div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Users</h2>
+          <div class="actions">
+            <button id="refresh-users" class="btn" type="button">Refresh</button>
+          </div>
+        </div>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>ID</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="users-body">
+              <tr><td colspan="4">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="users-status" class="status"></div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Orders</h2>
+          <div class="filters">
+            <input id="order-search" type="search" placeholder="Search order or user" />
+            <select id="order-status-filter">
+              <option value="">All Status</option>
+              <option value="placed">Placed</option>
+              <option value="approved">Approved</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="refunded">Refunded</option>
+            </select>
+            <button id="refresh-orders" class="btn" type="button">Refresh</button>
+          </div>
+        </div>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="orders-body">
+              <tr><td colspan="6">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="orders-status" class="status"></div>
+      </article>
+    </section>
+  </main>
+
+  <div id="order-modal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h3 id="order-modal-title">Order</h3>
+          <div id="order-modal-meta" style="color: var(--muted); font-size: 0.95rem;"></div>
+        </div>
+        <button id="close-order-modal" class="btn" type="button">Close</button>
+      </div>
+      <div id="order-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.API_BASE;
+    let token = localStorage.getItem("adminToken");
+    const pageStatus = document.getElementById("page-status");
+    const adminUsername = document.getElementById("admin-username");
+    const createAdminForm = document.getElementById("create-admin-form");
+    const createAdminStatus = document.getElementById("create-admin-status");
+    const adminsBody = document.getElementById("admins-body");
+    const workersBody = document.getElementById("workers-body");
+    const usersBody = document.getElementById("users-body");
+    const adminsStatus = document.getElementById("admins-status");
+    const workersStatus = document.getElementById("workers-status");
+    const usersStatus = document.getElementById("users-status");
+    const refreshAdmins = document.getElementById("refresh-admins");
+    const refreshWorkers = document.getElementById("refresh-workers");
+    const refreshUsers = document.getElementById("refresh-users");
+    const refreshOrders = document.getElementById("refresh-orders");
+    const logoutBtn = document.getElementById("logout-btn");
+    const ordersBody = document.getElementById("orders-body");
+    const ordersStatus = document.getElementById("orders-status");
+    const orderSearch = document.getElementById("order-search");
+    const orderStatusFilter = document.getElementById("order-status-filter");
+    const orderModal = document.getElementById("order-modal");
+    const closeOrderModal = document.getElementById("close-order-modal");
+    const orderModalTitle = document.getElementById("order-modal-title");
+    const orderModalMeta = document.getElementById("order-modal-meta");
+    const orderModalBody = document.getElementById("order-modal-body");
+    let currentAdminId = null;
+    let ordersCache = [];
+
+    if (!token) {
+      window.location.href = "admin-login.html";
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const rawText = await response.text();
+      let data = {};
+
+      if (rawText) {
+        try {
+          data = JSON.parse(rawText);
+        } catch (_error) {
+          throw new Error("The server returned an invalid response.");
+        }
+      }
+
+      if (!response.ok) {
+        const errorMessage = data.error || "Request failed";
+        const error = new Error(errorMessage);
+        error.status = response.status;
+        if (response.status === 404 && path.startsWith("/admin/orders")) {
+          error.message = "Backend is outdated or not restarted; run node server.js from the project root.";
+        }
+        throw error;
+      }
+
+      return data;
+    }
+
+    function renderRows(target, data, kind) {
+      if (!data.length) {
+        target.innerHTML = '<tr><td colspan="4">No records found.</td></tr>';
+        return;
+      }
+
+      target.innerHTML = data
+        .map((row) => {
+          const disableDelete = kind === "admins" && row.id === currentAdminId;
+          const deleteLabel = disableDelete ? "Current Admin" : "Delete";
+          const deleteClass = disableDelete ? "btn" : "btn danger";
+          const deleteAttr = disableDelete ? "disabled" : "";
+          return `
+            <tr>
+              <td>${row.username}</td>
+              <td>${row.id}</td>
+              <td>${new Date(row.createdAt).toLocaleString()}</td>
+              <td>
+                <button class="${deleteClass}" data-kind="${kind}" data-id="${row.id}" ${deleteAttr}>${deleteLabel}</button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    async function loadProfile() {
+      try {
+        const data = await api("/auth/me");
+        adminUsername.textContent = data.admin.username;
+        currentAdminId = data.admin.id;
+      } catch (error) {
+        pageStatus.textContent = error.message;
+        pageStatus.className = "status error";
+      }
+    }
+
+    async function loadAdmins() {
+      try {
+        const result = await api("/admin/admins");
+        renderRows(adminsBody, result.data || [], "admins");
+        adminsStatus.textContent = "";
+      } catch (error) {
+        adminsStatus.textContent = error.message;
+        adminsStatus.className = "status error";
+      }
+    }
+
+    async function loadWorkers() {
+      try {
+        const result = await api("/admin/workers");
+        renderRows(workersBody, result.data || [], "workers");
+        workersStatus.textContent = "";
+      } catch (error) {
+        workersStatus.textContent = error.message;
+        workersStatus.className = "status error";
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        const result = await api("/admin/users");
+        renderRows(usersBody, result.data || [], "users");
+        usersStatus.textContent = "";
+      } catch (error) {
+        usersStatus.textContent = error.message;
+        usersStatus.className = "status error";
+      }
+    }
+
+    function renderOrders(list) {
+      if (!list.length) {
+        ordersBody.innerHTML = '<tr><td colspan="6">No orders found.</td></tr>';
+        return;
+      }
+
+      ordersBody.innerHTML = list
+        .map((order) => {
+          const itemCount = order.totalItems || (order.items || []).length;
+          const status = order.status || "placed";
+          const canApprove = status === "placed";
+          const canRefund = status === "cancelled";
+          const canReopen = status === "cancelled";
+          return `
+            <tr>
+              <td>${order._id}</td>
+              <td>${order.username || order.userId}</td>
+              <td>${status}</td>
+              <td>${itemCount}</td>
+              <td>${new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(order.subtotal || 0)}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn" data-view="${order._id}">View</button>
+                  <button class="btn ${canApprove ? "primary" : ""}" data-approve="${order._id}" ${canApprove ? "" : "disabled"}>
+                    ${canApprove ? "Approve" : "Approved"}
+                  </button>
+                  <button class="btn" data-reopen="${order._id}" ${canReopen ? "" : "disabled"}>Reopen</button>
+                  <button class="btn ${canRefund ? "danger" : ""}" data-refund="${order._id}" ${canRefund ? "" : "disabled"}>Refund</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    function applyOrderFilters() {
+      const term = orderSearch.value.trim().toLowerCase();
+      const status = orderStatusFilter.value;
+      const filtered = ordersCache.filter((order) => {
+        const matchesTerm =
+          !term ||
+          String(order._id).toLowerCase().includes(term) ||
+          String(order.username || order.userId || "").toLowerCase().includes(term);
+        const matchesStatus = !status || order.status === status;
+        return matchesTerm && matchesStatus;
+      });
+      renderOrders(filtered);
+    }
+
+    async function loadOrders() {
+      try {
+        const result = await api("/admin/orders");
+        ordersCache = result.data || [];
+        applyOrderFilters();
+        ordersStatus.textContent = "";
+      } catch (error) {
+        ordersStatus.textContent = error.message;
+        ordersStatus.className = "status error";
+      }
+    }
+
+    async function handleDelete(event) {
+      const btn = event.target.closest("button[data-id]");
+      if (!btn || btn.disabled) return;
+      const id = btn.dataset.id;
+      const kind = btn.dataset.kind;
+      const confirmed = window.confirm("Delete this account?");
+      if (!confirmed) return;
+
+      try {
+        await api(`/admin/${kind}/${id}`, { method: "DELETE" });
+        if (kind === "admins") {
+          await loadAdmins();
+        } else if (kind === "workers") {
+          await loadWorkers();
+        } else {
+          await loadUsers();
+        }
+      } catch (error) {
+        pageStatus.textContent = error.message;
+        pageStatus.className = "status error";
+      }
+    }
+
+    createAdminForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      createAdminStatus.textContent = "";
+      createAdminStatus.className = "status";
+
+      const username = document.getElementById("create-admin-username").value.trim();
+      const password = document.getElementById("create-admin-password").value;
+
+      try {
+        await api("/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+
+        createAdminStatus.textContent = "Admin created successfully.";
+        createAdminStatus.className = "status success";
+        createAdminForm.reset();
+        await loadAdmins();
+      } catch (error) {
+        createAdminStatus.textContent = error.message;
+        createAdminStatus.className = "status error";
+      }
+    });
+
+    adminsBody.addEventListener("click", handleDelete);
+    workersBody.addEventListener("click", handleDelete);
+    usersBody.addEventListener("click", handleDelete);
+    ordersBody.addEventListener("click", async (event) => {
+      const approveBtn = event.target.closest("button[data-approve]");
+      if (approveBtn && !approveBtn.disabled) {
+        const confirmed = window.confirm("Approve this order?");
+        if (!confirmed) return;
+
+        try {
+          await api(`/admin/orders/${approveBtn.dataset.approve}/approve`, { method: "POST" });
+          await loadOrders();
+        } catch (error) {
+          ordersStatus.textContent = error.message;
+          ordersStatus.className = "status error";
+        }
+        return;
+      }
+
+      const refundBtn = event.target.closest("button[data-refund]");
+      if (refundBtn && !refundBtn.disabled) {
+        const confirmed = window.confirm("Mark this order as refunded?");
+        if (!confirmed) return;
+
+        try {
+          await api(`/admin/orders/${refundBtn.dataset.refund}/refund`, { method: "POST" });
+          await loadOrders();
+        } catch (error) {
+          ordersStatus.textContent = error.message;
+          ordersStatus.className = "status error";
+        }
+        return;
+      }
+
+      const reopenBtn = event.target.closest("button[data-reopen]");
+      if (reopenBtn && !reopenBtn.disabled) {
+        const confirmed = window.confirm("Reopen this order?");
+        if (!confirmed) return;
+
+        try {
+          await api(`/admin/orders/${reopenBtn.dataset.reopen}/reopen`, { method: "POST" });
+          await loadOrders();
+        } catch (error) {
+          ordersStatus.textContent = error.message;
+          ordersStatus.className = "status error";
+        }
+        return;
+      }
+
+      const viewBtn = event.target.closest("button[data-view]");
+      if (viewBtn) {
+        const order = ordersCache.find((item) => String(item._id) === viewBtn.dataset.view);
+        if (!order) return;
+        const itemsList = (order.items || [])
+          .map((item) => `<li>${item.name} x${item.quantity} (${new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(item.price || 0)})</li>`)
+          .join("");
+        orderModalTitle.textContent = `Order ${order._id}`;
+        orderModalMeta.textContent = `User: ${order.username || order.userId} | Status: ${order.status}`;
+        orderModalBody.innerHTML = `
+          <p><strong>Total:</strong> ${new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(order.subtotal || 0)}</p>
+          <p><strong>Created:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+          <div>
+            <strong>Items</strong>
+            <ul>${itemsList || "<li>No items</li>"}</ul>
+          </div>
+        `;
+        orderModal.classList.add("open");
+      }
+    });
+
+    refreshAdmins.addEventListener("click", loadAdmins);
+    refreshWorkers.addEventListener("click", loadWorkers);
+    refreshUsers.addEventListener("click", loadUsers);
+    refreshOrders.addEventListener("click", loadOrders);
+    orderSearch.addEventListener("input", applyOrderFilters);
+    orderStatusFilter.addEventListener("change", applyOrderFilters);
+    closeOrderModal.addEventListener("click", () => orderModal.classList.remove("open"));
+    orderModal.addEventListener("click", (event) => {
+      if (event.target === orderModal) {
+        orderModal.classList.remove("open");
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminProfile");
+    });
+
+    Promise.all([loadProfile(), loadAdmins(), loadWorkers(), loadUsers(), loadOrders()]);
+  </script>
+</body>
+</html>
+
+
+
+
+
